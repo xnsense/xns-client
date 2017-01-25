@@ -23,8 +23,12 @@ class xnsClientClass
 private:
 	bool secure = false;
 	Stream* debugger = NULL;
-	const char* appName;
-	const int* version;
+	//Name of Hardware Eq. xns.rfid
+	const char* hwName;
+	//Revision number Eq. A
+	const char* hwRevision;
+	//Revision number Eq. 1.0.0.0
+	const int* fwRevision;
 	const char* ssid;
 	const char* ssidPassword;
 	const char* mqttName;
@@ -58,18 +62,19 @@ protected:
 
 public:
 	xnsClientClass();
-	void begin(const char* appName, const int version[], int accessPointButtonPin, Stream& debugger);
-	void begin(const char* appName, const int version[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort);
-	void begin(const char* appName, const int version[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, Stream& debugger);
-	void begin(const char* appName, const int version[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttUser, const char* mqttPass);
-	void begin(const char* appName, const int version[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttUser, const char* mqttPass, Stream& debugger);
-	void beginSecure(const char* appName, const int version[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttClientID, const char* mqttUser, const char* mqttPass, const char* mqttPublishTopic, const char* mqttSubscribeTopic, Stream& debugger);
+	void begin(const char* hwName,const char* hwRevision, const int fwRevision[], int accessPointButtonPin, Stream& debugger);
+	void begin(const char* hwName,const char* hwRevision, const int fwRevision[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort);
+	void begin(const char* hwName,const char* hwRevision, const int fwRevision[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, Stream& debugger);
+	void begin(const char* hwName,const char* hwRevision, const int fwRevision[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttUser, const char* mqttPass);
+	void begin(const char* hwName,const char* hwRevision, const int fwRevision[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttUser, const char* mqttPass, Stream& debugger);
+	void beginSecure(const char* hwName,const char* hwRevision, const int fwRevision[], const char* ssid, const char* ssidPassword, const char* mqtt, int mqttPort, const char* mqttClientID, const char* mqttUser, const char* mqttPass, const char* mqttPublishTopic, const char* mqttSubscribeTopic, Stream& debugger);
 	void loop();
 	bool connected();
 	void printFlashInfo();
 	void printDeviceInfo();
 	String GetVersionString();
 	
+	void sendMqttConnectMessage();
 	void sendMqttMessage(String message);
 	void sendMqttMessage(JsonObject& message);
 	void sendMqttData(String message);
@@ -89,4 +94,3 @@ extern xnsClientClass xnsClient;
 
 
 #endif
-
