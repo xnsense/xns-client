@@ -107,7 +107,7 @@ void xnsClientClass::begin(const char* hwName, const char* hwRevision, const int
   this->mqtt.setCallback(xnsClientClass_mqttMessageReceived);
   this->MQTT_connect();
 
-  sendMqttConnectMessage();
+  sendMqttMessage("Connected");
   lastAliveMessage = 0;
 }
 
@@ -181,6 +181,9 @@ void xnsClientClass::sendMqttMessage(JsonObject& message)
   }
   message["id"] = WiFi.macAddress();
   message["up"] = millis() / 1000;
+  message["hwName"] = hwName;
+  message["hwRevision"] = hwRevision;
+  message["fwRevision"] = GetVersionString();
 
   String msg;
   message.printTo(msg);
@@ -200,6 +203,9 @@ void xnsClientClass::sendMqttMessage(String message)
   JsonObject& json = jsonBuffer.createObject();
   json["id"] = WiFi.macAddress();
   json["up"] = millis() / 1000;
+  json["hwName"] = hwName;
+  json["hwRevision"] = hwRevision;
+  json["fwRevision"] = GetVersionString();
   json["message"] = message;
 
   String msg;
@@ -207,29 +213,6 @@ void xnsClientClass::sendMqttMessage(String message)
 
   mqtt.publish(vTopic.c_str(), msg.c_str());
 }
-void xnsClientClass::sendMqttConnectMessage()
-{
-  String vTopic = mqttPublishTopic == 0 ? String("sensors/out/") + WiFi.macAddress() : String(mqttPublishTopic);
-  
-  if (!client->connected() || !mqtt.connected()) {
-    MQTT_connect();
-  }
-
-  StaticJsonBuffer<500> jsonBuffer;
-  JsonObject& json = jsonBuffer.createObject();
-  json["id"] = WiFi.macAddress();
-  json["hwName"] = hwName;
-  json["hwRevision"] = hwRevision;
-  json["fwRevision"] = GetVersionString();
-  json["up"] = millis() / 1000;
-  json["message"] = "Connected";
-
-  String msg;
-  json.printTo(msg);
-
-  mqtt.publish(vTopic.c_str(), msg.c_str());
-}
-
 
 void xnsClientClass::printDeviceInfo()
 {
