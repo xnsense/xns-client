@@ -82,6 +82,7 @@ public:
 
 	void setMqttMessageCallback(void(*mqttMessageCallback)(JsonObject& json));
 	void sendConfigMessage();
+	void sendConfigMessage(xnsClientConfig& config);
 	void setConfig(JsonObject& json);
 	bool hasValue(JsonObject& json, String key);
 	String getJsonValue(JsonObject& json, String key);

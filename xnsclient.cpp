@@ -443,68 +443,84 @@ void xnsClientClass::mqttMessageReceived(char* topic, unsigned char* payload, un
 }
 void xnsClientClass::setConfig(JsonObject& json)
 {
+	
   xnsClientConfig config;
   config.Load(0);
+  bool anythingReceived = false;
 
   if (hasValue(json, "ssid")) 
   {
     String value = getJsonValue(json, "ssid");
     config.ssid = new char[value.length() + 1];
     value.toCharArray(config.ssid, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "ssidPassword"))
   {
     String value = getJsonValue(json, "ssidPassword");
     config.ssidPassword = new char[value.length() + 1];
     value.toCharArray(config.ssidPassword, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqtt"))
   {
     String value = getJsonValue(json, "mqtt");
     config.mqtt = new char[value.length() + 1];
     value.toCharArray(config.mqtt, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttPort"))
   {
     String value = getJsonValue(json, "mqttPort");
     config.mqttPort = value.toInt();
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttClientID"))
   {
     String value = getJsonValue(json, "mqttClientID");
     config.mqttClientID = new char[value.length() + 1];
     value.toCharArray(config.mqttClientID, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttPublishTopic"))
   {
     String value = getJsonValue(json, "mqttPublishTopic");
     config.mqttPublishTopic = new char[value.length() + 1];
     value.toCharArray(config.mqttPublishTopic, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttSubscribeTopic"))
   {
     String value = getJsonValue(json, "mqttSubscribeTopic");
     config.mqttSubscribeTopic = new char[value.length() + 1];
     value.toCharArray(config.mqttSubscribeTopic, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttUser"))
   {
     String value = getJsonValue(json, "mqttUser");
     config.mqttUser = new char[value.length() + 1];
     value.toCharArray(config.mqttUser, value.length() + 1, 0);
+	anythingReceived = true;
   }
   if (hasValue(json, "mqttPass"))
   {
     String value = getJsonValue(json, "mqttPass");
     config.mqttPass = new char[value.length() + 1];
     value.toCharArray(config.mqttPass, value.length() + 1, 0);
+	anythingReceived = true;
   }
 
-  config.Print(Serial);
-  config.Save(0);
-
-  sendMqttMessage("New config received and stored in EEPROM. Rebooting now");
-  ESP.reset();
+  if (anythingReceived) {
+	  config.Print(Serial);
+	  config.Save(0);
+	  sendMqttMessage("New config received and stored in EEPROM. Rebooting now");
+	  ESP.reset();
+  }
+  else
+  {
+	  sendMqttMessage("No valid config parts in message");
+  }
 }
 
 bool xnsClientClass::hasValue(JsonObject& json, String key)
@@ -521,25 +537,30 @@ void xnsClientClass::sendConfigMessage()
   xnsClientConfig config;
   if (config.Load(0))
   {
-    StaticJsonBuffer<500> jsonBuffer;
-    JsonObject& json = jsonBuffer.createObject();
-    JsonObject& configJson = json.createNestedObject("Config");
-    configJson["ssid"] = config.ssid;
-    configJson["ssidPassword"] = config.ssidPassword;
-    configJson["mqtt"] = config.mqtt;
-    configJson["mqttPort"] = config.mqttPort;
-    configJson["mqttClientID"] = config.mqttClientID;
-    configJson["mqttPublishTopic"] = config.mqttPublishTopic;
-    configJson["mqttSubscribeTopic"] = config.mqttSubscribeTopic;
-    configJson["mqttUser"] = config.mqttUser;
-    configJson["mqttPass"] = config.mqttPass;
-
-    sendMqttMessage(json);
+	  sendConfigMessage(config);
   }
   else
   {
     sendMqttMessage("No config in EEPROM");
   }
+}
+
+void xnsClientClass::sendConfigMessage(xnsClientConfig& config) {
+	StaticJsonBuffer<500> jsonBuffer;
+	JsonObject& json = jsonBuffer.createObject();
+	JsonObject& dataJson = json.createNestedObject("data");
+	JsonObject& configJson = dataJson.createNestedObject("config");
+	configJson["ssid"] = config.ssid;
+	configJson["ssidPassword"] = config.ssidPassword;
+	configJson["mqtt"] = config.mqtt;
+	configJson["mqttPort"] = config.mqttPort;
+	configJson["mqttClientID"] = config.mqttClientID;
+	configJson["mqttPublishTopic"] = config.mqttPublishTopic;
+	configJson["mqttSubscribeTopic"] = config.mqttSubscribeTopic;
+	configJson["mqttUser"] = config.mqttUser;
+	configJson["mqttPass"] = config.mqttPass;
+
+	sendMqttMessage(json);
 }
 
 String xnsClientClass::getJsonValue(JsonObject& json, String key)
