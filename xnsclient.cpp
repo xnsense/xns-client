@@ -12,9 +12,10 @@ xnsClientClass::xnsClientClass()
 {
 
 }
-void xnsClientClass::setAliveMessageInterval(unsigned long interval)
+void xnsClientClass::setAliveMessageInterval(int interval)
 {
-  aliveMessageInterval = interval * 1000 * 60;
+	if (interval > 0)
+		aliveMessageInterval = interval * 1000 * 60;
 }
 
 void xnsClientClass::begin(const char* hwName, const char* hwRevision, const int fwRevision[], int accessPointButtonPin, Stream& debugger)

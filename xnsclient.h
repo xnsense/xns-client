@@ -88,7 +88,7 @@ public:
 	String getJsonValue(JsonObject& json, String key);
 	JsonVariant getJsonObject(JsonObject& json, String key);
 	void mqttMessageReceived(char* topic, unsigned char* payload, unsigned int length);
-	void setAliveMessageInterval(unsigned long interval);
+	void setAliveMessageInterval(int interval);
 };
 
 extern xnsClientClass xnsClient;
